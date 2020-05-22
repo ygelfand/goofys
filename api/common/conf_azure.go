@@ -30,7 +30,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure/cli"
 
 	"github.com/Azure/azure-pipeline-go/pipeline"
-	azblob "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-04-01/storage"
+	azblob "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage"
 	azblob2 "github.com/Azure/azure-storage-blob-go/azblob"
 	"github.com/mitchellh/go-homedir"
 	ini "gopkg.in/ini.v1"
@@ -269,7 +269,7 @@ func azureFindAccount(client azblob.AccountsClient, account string) (*azblob.End
 		return nil, "", err
 	}
 
-	for _, acc := range *accountsRes.Value {
+	for _, acc := range accountsRes.Values() {
 		if *acc.Name == account {
 			// /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/...
 			parts := strings.SplitN(*acc.ID, "/", 6)
@@ -370,7 +370,7 @@ func AzureBlobConfig(endpoint string, location string, storageType string) (conf
 
 			if key == "" {
 				var keysRes azblob.AccountListKeysResult
-				keysRes, err = client.ListKeys(context.TODO(), resourceGroup, account)
+				keysRes, err = client.ListKeys(context.TODO(), resourceGroup, account, "kerb")
 				if err != nil || len(*keysRes.Keys) == 0 {
 					err = fmt.Errorf("Missing key: configure via AZURE_STORAGE_KEY "+
 						"or %v/config", configDir)
